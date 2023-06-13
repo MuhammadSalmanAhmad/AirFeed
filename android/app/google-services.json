@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "168486521122",
+    "project_id": "air-feed",
+    "storage_bucket": "air-feed.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:168486521122:android:1f8a9290388789b4b43d7b",
+        "android_client_info": {
+          "package_name": "com.AirUniversity.air_feed"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "168486521122-v8ds6a4iqerdr3qrjnrkckrcas3d1te7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1yyo4A9MtyOJfe3K-350-2qkTp7GY0ro"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "168486521122-v8ds6a4iqerdr3qrjnrkckrcas3d1te7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
