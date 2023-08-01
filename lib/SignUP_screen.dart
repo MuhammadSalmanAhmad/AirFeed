@@ -1,9 +1,10 @@
 // ignore_for_file: unnecessary_const
+import 'dart:math';
+import 'package:firebase_database/firebase_database.dart';
 import 'SignInScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:air_feed/userinfo/users-class.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -13,8 +14,14 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  /// here I am defining my controllers for all the textfields */
+  final userNameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  Users user = Users();
   String? gender;
   String? dropdownvalue = 'Student';
+  final ref = FirebaseDatabase.instance.ref("Users/");
   @override
   final _formKey = GlobalKey<FormState>();
 
@@ -50,13 +57,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     radius: 100,
                   ),
                 ),
-               const SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 Wrap(
                   runSpacing: 15,
                   children: [
                     TextFormField(
+                      controller: userNameController,
                       decoration: const InputDecoration(
                         prefixIcon: Icon(Icons.person),
                         hintText: "Enter your name",
@@ -80,6 +88,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       },
                     ),
                     TextFormField(
+                      controller: emailController,
                       decoration: const InputDecoration(
                         prefixIcon: Icon(Icons.email),
                         hintText: "Enter your email",
@@ -103,6 +112,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       },
                     ),
                     TextFormField(
+                      controller: passwordController,
                       decoration: const InputDecoration(
                         prefixIcon: Icon(Icons.lock),
                         hintText: "Enter your password",
@@ -165,13 +175,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   "Are you a student, teacher or an alumni?",
                   style: TextStyle(color: Color(0XFF455A64), fontSize: 20),
                 ),
-                SizedBox(height: 20,),
+                SizedBox(
+                  height: 20,
+                ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 40,vertical: 10),
+                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                   decoration: BoxDecoration(
                       color: Color.fromARGB(255, 150, 222, 205),
                       border: Border.all(style: BorderStyle.solid),
                       borderRadius: BorderRadius.all(Radius.circular(20))),
+
+                  //this is my drop down button for the user to select their role
+
                   child: DropdownButton(
                       value: dropdownvalue,
                       icon: Icon(Icons.arrow_downward_rounded),
@@ -205,8 +220,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 20)
-                                ,
+                                fontSize: 20),
                           ),
                           value: "Alumni",
                         )
@@ -217,7 +231,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         });
                       }),
                 ),
-                SizedBox(height: 20,),
+                SizedBox(
+                  height: 20,
+                ),
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
@@ -228,16 +244,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         borderRadius: BorderRadius.all(Radius.circular(20)),
                       ),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Processing Data')),
                         );
+                        var userID = Random().nextInt(1000).toString();
+                        await ref.child(userID).set({
+                          "id": userID,
+                          "name": userNameController.value.text,
+                          "email": emailController.value.text,
+                          "password": passwordController.value.text,
+                          "gender": gender,
+                          "role": dropdownvalue
+                        });
                       }
                     },
                     child: Text("Create Account",
                         style: GoogleFonts.abel(
-                            fontSize: 22,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold) //TextStyle
                         )),
                 const SizedBox(
