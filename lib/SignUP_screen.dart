@@ -1,10 +1,13 @@
 // ignore_for_file: unnecessary_const
 import 'dart:math';
+import 'package:air_feed/utils/utils.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'SignInScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:air_feed/userinfo/users-class.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -15,12 +18,18 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   /// here I am defining my controllers for all the textfields */
+  /// and also defining my user class object */
+
   final userNameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   Users user = Users();
   String? gender;
   String? dropdownvalue = 'Student';
+
+  //firebase auth instance and firebase realtime databse instance ref defined here
+
+  FirebaseAuth auth = FirebaseAuth.instance;
   final ref = FirebaseDatabase.instance.ref("Users/");
   @override
   final _formKey = GlobalKey<FormState>();
@@ -249,7 +258,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Processing Data')),
                         );
-                        var userID = Random().nextInt(1000).toString();
+                        try {
+                          var userID = Random().nextInt(1000).toString();
                         await ref.child(userID).set({
                           "id": userID,
                           "name": userNameController.value.text,
@@ -258,6 +268,36 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           "gender": gender,
                           "role": dropdownvalue
                         });
+                          await auth.createUserWithEmailAndPassword(
+                              email: emailController.text.toString(),
+                              password: passwordController.text.toString());
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          Utilities().show_Message("Account Created");
+                        } on FirebaseAuthException catch (e) {
+                          String errorMessage;
+                          switch (e.code) {
+                            case 'weak-password':
+                              errorMessage =
+                                  "The password provided is too weak.";
+                              break;
+                            case 'email-already-in-use':
+                              errorMessage =
+                                  "The account already exists for that email.";
+                              break;
+                            default:
+                              errorMessage =
+                                  "An error occurred. Please try again later.";
+                              break;
+                          }
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          Utilities().show_Message(errorMessage);
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          Utilities().show_Message(
+                              "An error occurred. Please try again later.");
+                        }
+
+                        
                       }
                     },
                     child: Text("Create Account",

@@ -1,10 +1,17 @@
+import 'package:air_feed/Home_Screen.dart';
+import 'package:air_feed/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'SignUP_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SignInScreen extends StatelessWidget {
   SignInScreen({super.key});
   final _formKey = GlobalKey<FormState>();
+  User? user = FirebaseAuth.instance.currentUser;
+  final auth = FirebaseAuth.instance;
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,6 +49,7 @@ class SignInScreen extends StatelessWidget {
                 ),
                 Wrap(runSpacing: 10, children: [
                   TextFormField(
+                    controller: emailController,
                     decoration: const InputDecoration(
                       labelText: "Email",
                       labelStyle:
@@ -56,6 +64,7 @@ class SignInScreen extends StatelessWidget {
                     },
                   ),
                   TextFormField(
+                    controller: passwordController,
                     obscureText: true,
                     decoration: const InputDecoration(
                       labelText: "Password",
@@ -96,8 +105,30 @@ class SignInScreen extends StatelessWidget {
                           borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
+                          try {
+                            await auth
+                                .signInWithEmailAndPassword(
+                                    email: emailController.text.toString(),
+                                    password:
+                                        passwordController.text.toString())
+                                .then((value) => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => HomeScreen())));
+                          } on FirebaseAuthException catch (e) {
+                            if (e.code == 'user-not-found') {
+                              ScaffoldMessenger.of(context)
+                                  .hideCurrentSnackBar();
+                              Utilities().show_Message("User not found");
+                            } else if (e.code == 'wrong-password') {
+                              ScaffoldMessenger.of(context)
+                                  .hideCurrentSnackBar();
+                              Utilities().show_Message("Wrong password");
+                            }
+                          }
+
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Processing Data')),
                           );
@@ -122,7 +153,7 @@ class SignInScreen extends StatelessWidget {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => SignInScreen()));
+                                  builder: (context) => SignUpScreen()));
                         },
                         child: const Text(
                           "Sign-Up",
